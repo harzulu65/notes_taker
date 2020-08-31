@@ -1,4 +1,7 @@
 var express = require("express");
+var path = require("path");
+
+// var tableData = require("./data/tablenotes");
 
 var app = express();
 var PORT = 3000;
@@ -14,28 +17,42 @@ app.use(function (req, res, next) {
   );
   next();
 });
-// Application program interface
-// GET routes that server JSON
-// POST take information in JSON and format and add it a data
 
-app.get("/", function (request, response) {
-  response.send("Cars API me");
+// public
+app.use(express.static("public"));
+
+// Shows index page
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
-// sends cars to the web page
-app.get("/api/notes", function (request, response) {
-  response.send("this is me2");
-  //console.log(response);
+// shows notes page
+app.get("/notes", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
-app.post("/api/notes", function (request, response) {
-  console.log("enter post  ; ");
-  //console.log(response);
-  //   const notes = $(".note-title").attr("text");
-  //   console.log(notes);
-  //saveNote();
-  //cars.push(request.body);
-  //response.send("car was added");
+// sends notes
+var data = require("./db/db.json");
+
+app.get("/api/notes", function (req, res) {
+  res.send(data);
+});
+
+// saves one note
+app.post("/api/notes", function (req, res) {
+  var note = req.body;
+  note.id = data.length;
+  data.push(req.body);
+  res.send("note was added");
+});
+
+// delete one note
+
+app.delete("/api/notes/:id", function (req, res) {
+  console.log(data);
+  var id = req.params.id;
+  data.splice(id, 1);
+  res.send("note was deleted");
 });
 
 app.listen(PORT, function () {
